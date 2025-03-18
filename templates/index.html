@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSBTE Navigator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f6fa;
+            color: #2c3e50;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .new-chat-btn {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+        .chat-window {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background-color: #f5f6fa;
+        }
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+        }
+        .user-message {
+            background-color: #3498db;
+            color: white;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #ffffff;
+            color: #2c3e50;
+            border: 1px solid #e0e0e0;
+        }
+        .chat-input-container {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .chat-input-container button {
+            margin-left: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>MSBTE Navigator</h2>
+            <button class="new-chat-btn" onclick="startNewChat()">+ New Chat</button>
+        </div>
+    </div>
+    <div class="main-chat">
+        <div class="chat-window" id="chat-window"></div>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" placeholder="Ask about MSBTE...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById("user-input").value.trim();
+            if (!input) return;
+            
+            const chatWindow = document.getElementById("chat-window");
+            chatWindow.innerHTML += `<div class="message user-message">${input}</div>`;
+
+            fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: input })
+            })
+            .then(res => res.json())
+            .then(data => {
+                chatWindow.innerHTML += `<div class="message bot-message">${data.answer}</div>`;
+                document.getElementById("user-input").value = "";
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
+        }
+
+        function startNewChat() {
+            document.getElementById("chat-window").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
